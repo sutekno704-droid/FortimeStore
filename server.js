@@ -1,28 +1,28 @@
 const express = require('express');
-const fs = require('fs');
+const fs = require('fs/promises');
+const fsSync = require('fs');
 const path = require('path');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
 const app = express();
-const PORT = 3000;
+// Gunakan port dinamis dari layanan VPS/Render
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static(__dirname)); // Sajikan file HTML/CSS/JS
+app.use(express.static(__dirname));
 
-// Path file database
+// Lokasi file database
 const USERS_FILE = path.join(__dirname, 'users.json');
 const TRANSACTIONS_FILE = path.join(__dirname, 'transactions.json');
 
-// ==========================================
-// Fungsi Baca & Tulis File JSON
-// ==========================================
-function bacaFile(filePath) {
+// Inisialisasi file jika belum ada
+async function initDB() {
   try {
-    if (!fs.existsSync(filePath)) {
-      fs.writeFileSync(filePath, JSON.stringify(filePath.includes('users') ? {
+    if (!fsSync.existsSync(USERS_FILE)) {
+      await fs.writeFile(USERS_FILE, JSON.stringify({
         "users": [],
         "admin": {
           "id": 0,
@@ -31,228 +31,108 @@ function bacaFile(filePath) {
           "password": "admin123",
           "role": "admin"
         }
-      } : { "transactions": [] }, null, 2));
+      }, null, 2));
     }
-    const data = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(data);
+    if (!fsSync.existsSync(TRANSACTIONS_FILE)) {
+      await fs.writeFile(TRANSACTIONS_FILE, JSON.stringify({ "transactions": [] }, null, 2));
+    }
   } catch (err) {
-    console.error('Error baca file:', err);
-    return filePath.includes('users') ? { users: [], admin: {} } : { transactions: [] };
+    console.error('Inisialisasi DB gagal:', err);
   }
 }
 
-function tulisFile(filePath, data) {
+// Fungsi baca/tulis file
+async function bacaFile(fp) {
   try {
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+    const raw = await fs.readFile(fp, 'utf8');
+    return JSON.parse(raw);
+  } catch (e) {
+    console.error('Baca file gagal:', e);
+    return fp.includes('users') ? { users: [], admin: {} } : { transactions: [] };
+  }
+}
+
+async function tulisFile(fp, data) {
+  try {
+    await fs.writeFile(fp, JSON.stringify(data, null, 2));
     return true;
-  } catch (err) {
-    console.error('Error tulis file:', err);
+  } catch (e) {
+    console.error('Tulis file gagal:', e);
     return false;
   }
 }
 
-// ==========================================
-// API Endpoint
-// ==========================================
-
-// Daftar akun
-app.post('/api/register', (req, res) => {
+// API
+app.post('/api/register', async (req, res) => {
   const { nama, email, password, noHp } = req.body;
-  const data = bacaFile(USERS_FILE);
-
+  const data = await bacaFile(USERS_FILE);
   if (data.users.find(u => u.email === email)) {
     return res.json({ sukses: false, pesan: "Email sudah terdaftar!" });
   }
-
-  const userBaru = {
-    id: Date.now(),
-    nama,
-    email,
-    password,
-    noHp,
-    tanggalDaftar: new Date().toISOString()
-  };
-
-  data.users.push(userBaru);
-  tulisFile(USERS_FILE, data);
+  data.users.push({ id: Date.now(), nama, email, password, noHp, tanggalDaftar: new Date().toISOString() });
+  await tulisFile(USERS_FILE, data);
   res.json({ sukses: true, pesan: "Pendaftaran berhasil!" });
 });
 
-// Login
-app.post('/api/login', (req, res) => {
+app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
-  const data = bacaFile(USERS_FILE);
-
-  // Cek admin
-  if (data.admin && data.admin.email === email && data.admin.password === password) {
-    const { password: pwd, ...adminData } = data.admin;
-    return res.json({ sukses: true, pesan: "Login admin berhasil!", user: adminData });
+  const data = await bacaFile(USERS_FILE);
+  if (data.admin?.email === email && data.admin?.password === password) {
+    const { password: _, ...admin } = data.admin;
+    return res.json({ sukses: true, pesan: "Login admin berhasil!", user: admin });
   }
-
-  // Cek pengguna biasa
   const user = data.users.find(u => u.email === email && u.password === password);
   if (user) {
-    const { password: pwd, ...userData } = user;
-    return res.json({ sukses: true, pesan: "Login berhasil!", user: userData });
+    const { password: _, ...akun } = user;
+    return res.json({ sukses: true, pesan: "Login berhasil!", user: akun });
   }
-
-  res.json({ sukses: false, pesan: "Email atau kata sandi salah!" });
+  res.json({ sukses: false, pesan: "Email atau sandi salah!" });
 });
 
-// Simpan transaksi
-app.post('/api/transactions', (req, res) => {
-  const data = bacaFile(TRANSACTIONS_FILE);
-  const transaksiBaru = {
-    id: 'TRX-' + Date.now(),
-    tanggal: new Date().toLocaleString('id-ID'),
-    status: 'Menunggu Pembayaran',
-    ...req.body
-  };
-
-  data.transactions.push(transaksiBaru);
-  tulisFile(TRANSACTIONS_FILE, data);
-  res.json({ sukses: true, id: transaksiBaru.id });
+app.post('/api/transactions', async (req, res) => {
+  const data = await bacaFile(TRANSACTIONS_FILE);
+  const trx = { id: 'TRX-' + Date.now(), tanggal: new Date().toLocaleString('id-ID'), status: 'Menunggu Pembayaran', ...req.body };
+  data.transactions.push(trx);
+  await tulisFile(TRANSACTIONS_FILE, data);
+  res.json({ sukses: true, id: trx.id });
 });
 
-// Ambil transaksi berdasarkan user
-app.get('/api/transactions/:userId', (req, res) => {
-  const data = bacaFile(TRANSACTIONS_FILE);
-  const transaksiUser = data.transactions
-    .filter(t => t.userId == req.params.userId)
-    .sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
-  
-  res.json(transaksiUser);
+app.get('/api/transactions/:userId', async (req, res) => {
+  const data = await bacaFile(TRANSACTIONS_FILE);
+  const milikUser = data.transactions.filter(t => t.userId == req.params.userId).sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
+  res.json(milikUser);
 });
 
-// Ambil semua transaksi (admin)
-app.get('/api/all-transactions', (req, res) => {
-  const data = bacaFile(TRANSACTIONS_FILE);
-  res.json(data.transactions.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal)));
+app.get('/api/all-transactions', async (req, res) => {
+  const data = await bacaFile(TRANSACTIONS_FILE);
+  res.json(data.transactions.sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal)));
 });
 
-// Ambil semua pengguna (admin)
-app.get('/api/all-users', (req, res) => {
-  const data = bacaFile(USERS_FILE);
+app.get('/api/all-users', async (req, res) => {
+  const data = await bacaFile(USERS_FILE);
   res.json(data.users);
 });
 
-// Ubah status transaksi
-app.put('/api/transactions/:id', (req, res) => {
-  const { status } = req.body;
-  const data = bacaFile(TRANSACTIONS_FILE);
-  const index = data.transactions.findIndex(t => t.id === req.params.id);
-
-  if (index === -1) {
-    return res.json({ sukses: false, pesan: "Transaksi tidak ditemukan!" });
-  }
-
-  data.transactions[index].status = status;
-  tulisFile(TRANSACTIONS_FILE, data);
+app.put('/api/transactions/:id', async (req, res) => {
+  const data = await bacaFile(TRANSACTIONS_FILE);
+  const idx = data.transactions.findIndex(t => t.id === req.params.id);
+  if (idx < 0) return res.json({ sukses: false, pesan: "Tidak ditemukan" });
+  data.transactions[idx].status = req.body.status;
+  await tulisFile(TRANSACTIONS_FILE, data);
   res.json({ sukses: true });
 });
 
-// Hapus transaksi
-app.delete('/api/transactions/:id', (req, res) => {
-  const data = bacaFile(TRANSACTIONS_FILE);
+app.delete('/api/transactions/:id', async (req, res) => {
+  const data = await bacaFile(TRANSACTIONS_FILE);
   const baru = data.transactions.filter(t => t.id !== req.params.id);
-  tulisFile(TRANSACTIONS_FILE, { transactions: baru });
+  await tulisFile(TRANSACTIONS_FILE, { transactions: baru });
   res.json({ sukses: true });
 });
+
+// Sajikan halaman utama
+app.get('/', (_, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 // Jalankan server
-app.listen(PORT, () => {
-  console.log(`Server berjalan di http://localhost:${PORT}`);
+initDB().then(() => {
+  app.listen(PORT, () => console.log(`Server berjalan di port ${PORT}`));
 });
-  };
-
-  data.users.push(userBaru);
-  tulisFile(USERS_FILE, data);
-  res.json({ sukses: true, pesan: "Pendaftaran berhasil!" });
-});
-
-// Login
-app.post('/api/login', (req, res) => {
-  const { email, password } = req.body;
-  const data = bacaFile(USERS_FILE);
-
-  // Cek admin
-  if (data.admin && data.admin.email === email && data.admin.password === password) {
-    const { password: pwd, ...adminData } = data.admin;
-    return res.json({ sukses: true, pesan: "Login admin berhasil!", user: adminData });
-  }
-
-  // Cek pengguna biasa
-  const user = data.users.find(u => u.email === email && u.password === password);
-  if (user) {
-    const { password: pwd, ...userData } = user;
-    return res.json({ sukses: true, pesan: "Login berhasil!", user: userData });
-  }
-
-  res.json({ sukses: false, pesan: "Email atau kata sandi salah!" });
-});
-
-// Simpan transaksi
-app.post('/api/transactions', (req, res) => {
-  const data = bacaFile(TRANSACTIONS_FILE);
-  const transaksiBaru = {
-    id: 'TRX-' + Date.now(),
-    tanggal: new Date().toLocaleString('id-ID'),
-    status: 'Menunggu Pembayaran',
-    ...req.body
-  };
-
-  data.transactions.push(transaksiBaru);
-  tulisFile(TRANSACTIONS_FILE, data);
-  res.json({ sukses: true, id: transaksiBaru.id });
-});
-
-// Ambil transaksi berdasarkan user
-app.get('/api/transactions/:userId', (req, res) => {
-  const data = bacaFile(TRANSACTIONS_FILE);
-  const transaksiUser = data.transactions
-    .filter(t => t.userId == req.params.userId)
-    .sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
-  
-  res.json(transaksiUser);
-});
-
-// Ambil semua transaksi (admin)
-app.get('/api/all-transactions', (req, res) => {
-  const data = bacaFile(TRANSACTIONS_FILE);
-  res.json(data.transactions.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal)));
-});
-
-// Ambil semua pengguna (admin)
-app.get('/api/all-users', (req, res) => {
-  const data = bacaFile(USERS_FILE);
-  res.json(data.users);
-});
-
-// Ubah status transaksi
-app.put('/api/transactions/:id', (req, res) => {
-  const { status } = req.body;
-  const data = bacaFile(TRANSACTIONS_FILE);
-  const index = data.transactions.findIndex(t => t.id === req.params.id);
-
-  if (index === -1) {
-    return res.json({ sukses: false, pesan: "Transaksi tidak ditemukan!" });
-  }
-
-  data.transactions[index].status = status;
-  tulisFile(TRANSACTIONS_FILE, data);
-  res.json({ sukses: true });
-});
-
-// Hapus transaksi
-app.delete('/api/transactions/:id', (req, res) => {
-  const data = bacaFile(TRANSACTIONS_FILE);
-  const baru = data.transactions.filter(t => t.id !== req.params.id);
-  tulisFile(TRANSACTIONS_FILE, { transactions: baru });
-  res.json({ sukses: true });
-});
-
-// Jalankan server
-app.listen(PORT, () => {
-  console.log(`Server berjalan di http://localhost:${PORT}`);
-});
-    
