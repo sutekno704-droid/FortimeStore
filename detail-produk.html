@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Up Mobile Legends - GameTopStore</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="logo">
+                    <h2>GameTop<span>Store</span></h2>
+                </div>
+                <nav class="nav-menu">
+                    <ul>
+                        <li><a href="index.html">Beranda</a></li>
+                        <li><a href="index.html#game">Semua Game</a></li>
+                        <li><a href="index.html#berita">Berita</a></li>
+                        <li><a href="akun.html">Akun</a></li>
+                    </ul>
+                </nav>
+                <div class="auth-buttons">
+                    <a href="login.html" class="btn btn-outline">Masuk</a>
+                    <a href="daftar.html" class="btn btn-primary">Daftar</a>
+                    <button class="menu-toggle" id="menuToggle">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="container">
+            <div class="product-container">
+                <div class="product-image">
+                    <i class="fa fa-mobile"></i>
+                    <h3>Mobile Legends</h3>
+                </div>
+
+                <div class="product-info">
+                    <h2>Top Up Diamond Mobile Legends</h2>
+                    <p class="text-light">Proses instan 1-5 menit, aman dan terpercaya. Masukkan ID dan Server game Anda, pilih paket, lalu bayar.</p>
+                    
+                    <div class="form-group" style="margin-top:25px;">
+                        <label>ID Game</label>
+                        <input type="text" id="idGame" required placeholder="Contoh: 12345678">
+                    </div>
+                    <div class="form-group">
+                        <label>Server Game</label>
+                        <input type="text" id="serverGame" required placeholder="Contoh: 1234">
+                    </div>
+
+                    <h4 style="margin:25px 0 15px;">Pilih Paket Diamond</h4>
+                    <div class="package-grid">
+                        <div class="package-option" data-item="5 Diamond" data-jumlah="5" data-harga="1500">
+                            <div class="item">5 Diamond</div>
+                            <div class="price">Rp 1.500</div>
+                        </div>
+                        <div class="package-option" data-item="25 Diamond" data-jumlah="25" data-harga="7500">
+                            <div class="item">25 Diamond</div>
+                            <div class="price">Rp 7.500</div>
+                        </div>
+                        <div class="package-option" data-item="50 Diamond" data-jumlah="50" data-harga="14500">
+                            <div class="item">50 Diamond</div>
+                            <div class="price">Rp 14.500</div>
+                        </div>
+                        <div class="package-option" data-item="100 Diamond" data-jumlah="100" data-harga="28500">
+                            <div class="item">100 Diamond</div>
+                            <div class="price">Rp 28.500</div>
+                        </div>
+                        <div class="package-option" data-item="250 Diamond" data-jumlah="250" data-harga="69500">
+                            <div class="item">250 Diamond</div>
+                            <div class="price">Rp 69.500</div>
+                        </div>
+                        <div class="package-option" data-item="500 Diamond" data-jumlah="500" data-harga="135000">
+                            <div class="item">500 Diamond</div>
+                            <div class="price">Rp 135.000</div>
+                        </div>
+                    </div>
+
+                    <div class="price-tag" id="hargaTotal">Rp 0</div>
+                    <button id="tombolBeli" class="btn btn-primary btn-lg" style="width:100%;">Lanjutkan Pembayaran</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 GameTopStore. Semua hak dilindungi undang-undang.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+                          </html>
+                          
