@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - GameTopStore</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="logo">
+                    <h2>GameTop<span>Store</span></h2>
+                </div>
+                <nav class="nav-menu">
+                    <ul>
+                        <li><a href="index.html">Beranda</a></li>
+                        <li><a href="index.html#game">Semua Game</a></li>
+                        <li><a href="akun.html">Akun Saya</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="container">
+            <h2 style="margin-bottom:30px;">Checkout Pesanan</h2>
+            <div class="checkout-grid">
+                <div class="checkout-form">
+                    <h3>Metode Pembayaran</h3>
+                    <form id="formCheckout">
+                        <div class="payment-list">
+                            <div class="payment-option" data-metode="QRIS">
+                                <i class="fa fa-qrcode fa-2x"></i>
+                                <div>
+                                    <strong>QRIS</strong>
+                                    <p>Bayar lewat semua aplikasi pembayaran</p>
+                                </div>
+                            </div>
+                            <div class="payment-option" data-metode="DANA">
+                                <i class="fa fa-wallet fa-2x"></i>
+                                <div>
+                                    <strong>DANA</strong>
+                                    <p>Proses instan</p>
+                                </div>
+                            </div>
+                            <div class="payment-option" data-metode="Transfer BCA">
+                                <i class="fa fa-bank fa-2x"></i>
+                                <div>
+                                    <strong>Transfer Bank BCA</strong>
+                                    <p>Biaya admin Rp 2.500</p>
+                                </div>
+                            </div>
+                            <div class="payment-option" data-metode="Indomaret">
+                                <i class="fa fa-store fa-2x"></i>
+                                <div>
+                                    <strong>Indomaret</strong>
+                                    <p>Bayar di kasir terdekat</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg" style="width:100%; margin-top:25px;">Buat Pesanan</button>
+                    </form>
+                </div>
+
+                <div class="order-summary">
+                    <h3>Ringkasan Pesanan</h3>
+                    <div class="summary-item">
+                        <span>Game</span>
+                        <span id="ringkasanGame">-</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Item</span>
+                        <span id="ringkasanItem">-</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Harga</span>
+                        <span id="ringkasanHarga">-</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Biaya Layanan</span>
+                        <span>Rp 0</span>
+                    </div>
+                    <div class="summary-total">
+                        <span>Total Bayar</span>
+                        <span id="totalBayar">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 GameTopStore. Semua hak dilindungi undang-undang.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+                                                     </html>
+                                                     
