@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - GameTopStore</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="logo">
+                    <h2>GameTop<span>Store</span></h2>
+                </div>
+                <nav class="nav-menu">
+                    <ul>
+                        <li><a href="index.html">Ke Halaman Utama</a></li>
+                    </ul>
+                </nav>
+                <div class="auth-buttons">
+                    <button onclick="logout()" class="btn btn-outline">Keluar Admin</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Konten Admin -->
+    <section class="section">
+        <div class="container">
+            <h1 style="margin-bottom:30px; color:var(--dark-blue);">Dashboard Administrator</h1>
+            
+            <div class="admin-container">
+                <!-- Sidebar -->
+                <div class="admin-sidebar">
+                    <h3>Menu Admin</h3>
+                    <ul>
+                        <li><a href="#transaksi" class="tab-link active" onclick="bukaTab('transaksi')">
+                            <i class="fa fa-exchange"></i> Semua Transaksi
+                        </a></li>
+                        <li><a href="#pengguna" class="tab-link" onclick="bukaTab('pengguna')">
+                            <i class="fa fa-users"></i> Data Pengguna
+                        </a></li>
+                        <li><a href="#statistik" class="tab-link" onclick="bukaTab('statistik')">
+                            <i class="fa fa-bar-chart"></i> Statistik
+                        </a></li>
+                    </ul>
+                </div>
+
+                <!-- Konten Utama -->
+                <div class="admin-content">
+                    <!-- Tab Statistik -->
+                    <div id="statistik" class="tab-content active">
+                        <h3 style="margin-bottom:25px; color:var(--dark-blue);">Ringkasan Statistik</h3>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-label">Total Transaksi</div>
+                                <div class="stat-number" id="statTotalTransaksi">0</div>
+                            </div>
+                            <div class="stat-card success">
+                                <div class="stat-label">Transaksi Berhasil</div>
+                                <div class="stat-number" id="statBerhasil">0</div>
+                            </div>
+                            <div class="stat-card pending">
+                                <div class="stat-label">Menunggu Pembayaran</div>
+                                <div class="stat-number" id="statPending">0</div>
+                            </div>
+                            <div class="stat-card users">
+                                <div class="stat-label">Total Pengguna</div>
+                                <div class="stat-number" id="statPengguna">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Transaksi -->
+                    <div id="transaksi" class="tab-content">
+                        <h3 style="margin-bottom:25px; color:var(--dark-blue);">Daftar Semua Transaksi</h3>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>ID Transaksi</th>
+                                    <th>Game</th>
+                                    <th>Item</th>
+                                    <th>Total</th>
+                                    <th>Metode Bayar</th>
+                                    <th>Tanggal</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelSemuaTransaksi">
+                                <!-- Data dimuat otomatis -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Tab Pengguna -->
+                    <div id="pengguna" class="tab-content">
+                        <h3 style="margin-bottom:25px; color:var(--dark-blue);">Data Pengguna Terdaftar</h3>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nama Lengkap</th>
+                                    <th>Email</th>
+                                    <th>No. HP</th>
+                                    <th>Tanggal Daftar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelPengguna">
+                                <!-- Data dimuat otomatis -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 GameTopStore - Panel Administrasi</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Fungsi untuk berpindah tab
+        function bukaTab(namaTab) {
+            // Sembunyikan semua tab
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-link').forEach(link => {
+                link.classList.remove('active');
+            });
+
+            // Tampilkan tab yang dipilih
+            document.getElementById(namaTab).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+    </script>
+</body>
+                          </html>
+                                      
